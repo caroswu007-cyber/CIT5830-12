@@ -40,7 +40,7 @@ contract Source is AccessControl {
         bool ok = IERC20(_token).transfer(_recipient, _amount);
         require(ok, "transfer failed");
 
-        emit Withdraw(_token, _recipient, _amount);
+        emit Withdrawl(_token, _recipient, _amount);
 	}
 
 	function registerToken(address _token) onlyRole(ADMIN_ROLE) public {
