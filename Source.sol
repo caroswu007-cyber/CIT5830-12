@@ -22,15 +22,33 @@ contract Source is AccessControl {
     }
 
 	function deposit(address _token, address _recipient, uint256 _amount ) public {
-		//YOUR CODE HERE
+		require(isRegistered[_token], "token not registered");
+        require(_amount > 0, "amount = 0");
+        require(_recipient != address(0), "bad recipient");
+        bool ok = IERC20(_token).transferFrom(msg.sender, address(this), _amount);
+        require(ok, "transferFrom failed");
+
+// 3) 发出存款事件，供桥监听
+        emit Deposit(_token, msg.sender, _recipient, _amount);
 	}
 
 	function withdraw(address _token, address _recipient, uint256 _amount ) onlyRole(WARDEN_ROLE) public {
-		//YOUR CODE HERE
+		require(isRegistered[_token], "token not registered");
+        require(_amount > 0, "amount = 0");
+        require(_recipient != address(0), "bad recipient");
+        // 将真实资产从保管合约转给接收者
+        bool ok = IERC20(_token).transfer(_recipient, _amount);
+        require(ok, "transfer failed");
+
+        emit Withdraw(_token, _recipient, _amount);
 	}
 
 	function registerToken(address _token) onlyRole(ADMIN_ROLE) public {
-		//YOUR CODE HERE
+		require(_token != address(0), "bad token");
+        require(!isRegistered[_token], "already registered");
+        isRegistered[_token] = true;
+
+        emit Registration(_token);
 	}
 
 
